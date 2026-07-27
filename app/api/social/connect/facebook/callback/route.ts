@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { exchangeForLongLivedToken } from "@/lib/meta";
 
+export const dynamic = "force-dynamic";
+
 const prisma = new PrismaClient();
 const GRAPH_API_BASE = "https://graph.facebook.com/v19.0";
 

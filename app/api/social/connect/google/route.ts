@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 // Startet den Google-Login-Dialog, um Zugriff auf das Via-Nuova Google-Unternehmensprofil
 // zu bekommen. Einmalig aufrufen, sobald die Google-Business-Profile-API-Freigabe da ist.
 export async function GET(req: NextRequest) {

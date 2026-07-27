@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { publishContentItem, POSTABLE_CONTENT_TYPES } from "@/lib/socialPosting";
 
+export const dynamic = "force-dynamic";
+
 const prisma = new PrismaClient();
 
 // Für einen täglichen Scheduler gedacht (Vercel Cron, Windows-Taskplaner + curl, ...).

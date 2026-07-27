@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { uploadMediaFile, deleteMediaFile } from "@/lib/supabaseStorage";
 
+export const dynamic = "force-dynamic";
+
 const prisma = new PrismaClient();
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB, reicht für Handy-Fotos und kurze Clips

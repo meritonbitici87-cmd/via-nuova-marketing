@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { generateContentItem } from "@/lib/generateContentItem";
 
+export const dynamic = "force-dynamic";
+
 const prisma = new PrismaClient();
 
 // Generiert eine personalisierte Kundenbindungs-Nachricht (Geburtstag oder Rückgewinnung)

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { buildLocalBusinessSchema, buildScriptTag } from "@/lib/seoSchema";
 
+export const dynamic = "force-dynamic";
+
 const prisma = new PrismaClient();
 
 // Liefert fertigen schema.org/JSON-LD-Code (Typ "Restaurant" inkl. Bewertungen), der 1:1

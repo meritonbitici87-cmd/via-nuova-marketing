@@ -4,6 +4,8 @@ import { generateImage } from "@/lib/openai";
 import { buildImagePrompt } from "@/lib/prompts/image";
 import { uploadFile } from "@/lib/supabaseStorage";
 
+export const dynamic = "force-dynamic";
+
 const prisma = new PrismaClient();
 
 // GET: Liste aller bisher generierten Bilder (neueste zuerst).

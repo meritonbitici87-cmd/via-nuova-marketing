@@ -3,6 +3,8 @@ import { PrismaClient } from "@prisma/client";
 import { buildCalendarPlan } from "@/lib/contentCalendar";
 import { generateContentItem } from "@/lib/generateContentItem";
 
+export const dynamic = "force-dynamic";
+
 const prisma = new PrismaClient();
 
 // Sicherheitsnetz: verhindert versehentliche Massen-Generierung (= Massen-Kosten),

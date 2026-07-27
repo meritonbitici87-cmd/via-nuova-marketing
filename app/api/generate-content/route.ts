@@ -3,6 +3,8 @@ import { generateContentItem } from "@/lib/generateContentItem";
 import { validateOptions } from "@/lib/contentTypes";
 import { GenerationOptions } from "@/lib/prompts/types";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

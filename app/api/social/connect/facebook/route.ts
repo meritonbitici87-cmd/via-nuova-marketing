@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 // Startet den Facebook-Login-Dialog, um Zugriff auf die Via-Nuova-Page (und die
 // verknüpfte Instagram-Seite) zu bekommen. Einmalig aufrufen (im Browser öffnen),
 // sobald die Meta Developer App fertig eingerichtet ist.

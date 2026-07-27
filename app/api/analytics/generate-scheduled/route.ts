@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateAnalyticsReport } from "@/lib/generateAnalyticsReport";
 
+export const dynamic = "force-dynamic";
+
 // Für einen Scheduler gedacht (Windows-Taskplaner + curl, Vercel Cron, ...):
 // ?period=weekly einmal pro Woche, ?period=monthly einmal pro Monat aufrufen.
 // Per CRON_SECRET geschützt, genau wie /api/social/publish-scheduled.

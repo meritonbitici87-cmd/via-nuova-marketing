@@ -3,6 +3,8 @@ import { PrismaClient } from "@prisma/client";
 import { generateText } from "@/lib/claude";
 import { buildReviewReplyPrompt } from "@/lib/prompts/review-reply";
 
+export const dynamic = "force-dynamic";
+
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
