@@ -188,19 +188,19 @@ const MORE_TABS = TABS.filter((t) => !PRIMARY_TAB_KEYS.includes(t.key));
 // Wiederverwendete Styles im echten Via-Nuova-Look (Türkis auf Schwarz, siehe
 // via-nuova.de): dunkle Karten mit türkisfarbenem Rand statt weißer Karten.
 const CARD = "bg-brand-surface rounded-2xl p-4 ring-1 ring-brand-turquoise/15";
-const CARD_ROW = "bg-brand-surface rounded-xl p-3 ring-1 ring-brand-turquoise/15";
+const CARD_ROW = "bg-brand-surface rounded-2xl p-3 ring-1 ring-brand-turquoise/15";
 const BTN_PRIMARY =
-  "bg-brand-turquoise text-brand-bg text-sm font-semibold px-4 py-2 rounded-xl hover:brightness-110 active:scale-[0.98] transition disabled:opacity-50 disabled:active:scale-100";
+  "bg-brand-turquoise text-brand-bg text-sm font-semibold px-5 py-2.5 rounded-full hover:brightness-110 active:scale-[0.96] transition disabled:opacity-50 disabled:active:scale-100";
 const BTN_SECONDARY =
-  "border border-brand-cream/25 text-brand-cream text-sm font-medium px-4 py-2 rounded-xl bg-transparent hover:bg-brand-cream/5 active:scale-[0.98] transition disabled:opacity-50 disabled:active:scale-100";
+  "border border-brand-cream/25 text-brand-cream text-sm font-medium px-5 py-2.5 rounded-full bg-transparent hover:bg-brand-cream/5 active:scale-[0.96] transition disabled:opacity-50 disabled:active:scale-100";
 // Für die eigentliche Veröffentlichung (invertiert: schwarz mit türkisem Rand),
 // damit sie sich klar von der "Freigeben"-Aktion abhebt.
 const BTN_POST =
-  "bg-brand-bg text-brand-turquoise border border-brand-turquoise text-sm font-semibold px-4 py-2 rounded-xl hover:bg-brand-turquoise/10 active:scale-[0.98] transition disabled:opacity-50 disabled:active:scale-100";
+  "bg-brand-bg text-brand-turquoise border border-brand-turquoise text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-brand-turquoise/10 active:scale-[0.96] transition disabled:opacity-50 disabled:active:scale-100";
 const INPUT_CLASS =
-  "border border-brand-cream/15 rounded-xl px-3 py-2 text-sm w-full bg-black/30 text-brand-cream placeholder:text-brand-cream/30 focus:outline-none focus:ring-2 focus:ring-brand-turquoise/40 focus:border-brand-turquoise focus:bg-black/50 transition";
+  "border border-brand-cream/15 rounded-2xl px-3.5 py-2.5 text-sm w-full bg-black/30 text-brand-cream placeholder:text-brand-cream/30 focus:outline-none focus:ring-2 focus:ring-brand-turquoise/40 focus:border-brand-turquoise focus:bg-black/50 transition";
 const FILE_INPUT_CLASS =
-  "text-sm w-full text-brand-cream/60 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-brand-turquoise file:text-brand-bg file:font-medium file:cursor-pointer";
+  "text-sm w-full text-brand-cream/60 file:mr-3 file:py-2 file:px-3 file:rounded-full file:border-0 file:bg-brand-turquoise file:text-brand-bg file:font-medium file:cursor-pointer";
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("de-DE", {
@@ -628,7 +628,7 @@ export default function DashboardPage() {
         {business && <p className="text-xs text-brand-cream/50">{business.address}</p>}
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-4 pb-28">
+      <main className="max-w-4xl mx-auto px-4 py-4 pb-32">
         {loading && <p className="text-brand-cream/40 text-sm">Lädt...</p>}
 
         {!loading && activeTab === "overview" && (
@@ -800,7 +800,7 @@ export default function DashboardPage() {
                       {item.status === "draft" && (
                         <button
                           onClick={() => updateContentStatus(item.id, "approved")}
-                          className="shrink-0 bg-brand-turquoise text-brand-bg text-xs font-semibold px-3 py-1.5 rounded-lg hover:brightness-110"
+                          className="shrink-0 bg-brand-turquoise text-brand-bg text-xs font-semibold px-3 py-1.5 rounded-full hover:brightness-110"
                         >
                           Freigeben
                         </button>
@@ -808,7 +808,7 @@ export default function DashboardPage() {
                       {item.status === "approved" && (
                         <button
                           onClick={() => updateContentStatus(item.id, "posted")}
-                          className="shrink-0 border border-brand-cream/25 text-brand-cream text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-brand-cream/5"
+                          className="shrink-0 border border-brand-cream/25 text-brand-cream text-xs font-medium px-3 py-1.5 rounded-full hover:bg-brand-cream/5"
                         >
                           Gepostet
                         </button>
@@ -1024,14 +1024,14 @@ export default function DashboardPage() {
                       <button
                         onClick={() => generateCustomerMessage(customer.id, "customer_birthday")}
                         disabled={generatingMessageFor === birthdayKey}
-                        className="bg-brand-turquoise text-brand-bg text-xs font-semibold px-3 py-1.5 rounded-lg hover:brightness-110 disabled:opacity-50"
+                        className="bg-brand-turquoise text-brand-bg text-xs font-semibold px-3 py-1.5 rounded-full hover:brightness-110 disabled:opacity-50"
                       >
                         {generatingMessageFor === birthdayKey ? "Generiert..." : "Geburtstagsnachricht generieren"}
                       </button>
                       <button
                         onClick={() => generateCustomerMessage(customer.id, "customer_winback")}
                         disabled={generatingMessageFor === winbackKey}
-                        className="border border-brand-cream/25 text-brand-cream text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-brand-cream/5 disabled:opacity-50"
+                        className="border border-brand-cream/25 text-brand-cream text-xs font-medium px-3 py-1.5 rounded-full hover:bg-brand-cream/5 disabled:opacity-50"
                       >
                         {generatingMessageFor === winbackKey ? "Generiert..." : "Rückgewinnungsnachricht generieren"}
                       </button>
@@ -1318,9 +1318,11 @@ export default function DashboardPage() {
         )}
       </main>
 
-      {/* Untere Navigation - fest am Bildschirmrand, wie bei einer nativen App. */}
+      {/* Untere Navigation - fest am Bildschirmrand, wie bei einer nativen App.
+          Jeder Tab sitzt als eigene abgerundete "Taste" da, aktive Taste bekommt
+          einen türkisen Hintergrund. */}
       <nav className="fixed bottom-0 inset-x-0 z-20 bg-brand-bg/95 backdrop-blur border-t border-brand-turquoise/10 [padding-bottom:env(safe-area-inset-bottom)]">
-        <div className="max-w-4xl mx-auto grid grid-cols-5">
+        <div className="max-w-4xl mx-auto grid grid-cols-5 gap-1.5 px-2 py-2">
           {PRIMARY_TAB_KEYS.map((key) => {
             const tab = TABS.find((t) => t.key === key)!;
             const active = activeTab === key && !moreOpen;
@@ -1328,22 +1330,24 @@ export default function DashboardPage() {
               <button
                 key={key}
                 onClick={() => selectTab(key)}
-                className={`flex flex-col items-center justify-center gap-0.5 py-2.5 text-[11px] font-medium ${
-                  active ? "text-brand-turquoise" : "text-brand-cream/40"
+                className={`flex flex-col items-center justify-center gap-1 py-3 rounded-2xl text-xs font-medium active:scale-95 transition ${
+                  active ? "bg-brand-turquoise/15 text-brand-turquoise" : "text-brand-cream/45 hover:bg-white/5"
                 }`}
               >
-                <span className="text-lg leading-none">{TAB_ICONS[key]}</span>
+                <span className="text-2xl leading-none">{TAB_ICONS[key]}</span>
                 {tab.label}
               </button>
             );
           })}
           <button
             onClick={() => setMoreOpen((v) => !v)}
-            className={`flex flex-col items-center justify-center gap-0.5 py-2.5 text-[11px] font-medium ${
-              moreOpen || !PRIMARY_TAB_KEYS.includes(activeTab) ? "text-brand-turquoise" : "text-brand-cream/40"
+            className={`flex flex-col items-center justify-center gap-1 py-3 rounded-2xl text-xs font-medium active:scale-95 transition ${
+              moreOpen || !PRIMARY_TAB_KEYS.includes(activeTab)
+                ? "bg-brand-turquoise/15 text-brand-turquoise"
+                : "text-brand-cream/45 hover:bg-white/5"
             }`}
           >
-            <span className="text-lg leading-none">⋯</span>
+            <span className="text-2xl leading-none">⋯</span>
             Mehr
           </button>
         </div>
@@ -1360,13 +1364,13 @@ export default function DashboardPage() {
                 <button
                   key={tab.key}
                   onClick={() => selectTab(tab.key)}
-                  className={`flex flex-col items-center justify-center gap-1 py-4 rounded-xl text-xs font-medium ${
+                  className={`flex flex-col items-center justify-center gap-1.5 py-5 rounded-2xl text-xs font-medium active:scale-95 transition ${
                     activeTab === tab.key
-                      ? "bg-brand-turquoise/10 text-brand-turquoise"
+                      ? "bg-brand-turquoise/15 text-brand-turquoise"
                       : "bg-white/5 text-brand-cream/70"
                   }`}
                 >
-                  <span className="text-xl leading-none">{TAB_ICONS[tab.key]}</span>
+                  <span className="text-2xl leading-none">{TAB_ICONS[tab.key]}</span>
                   {tab.label}
                 </button>
               ))}
