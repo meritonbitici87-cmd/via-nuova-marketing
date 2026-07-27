@@ -1,8 +1,24 @@
 import "./globals.css";
+import type { Metadata, Viewport } from "next";
+import { ServiceWorkerRegistration } from "./ServiceWorkerRegistration";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Pizzeria KI-Marketing",
   description: "Content-Automation für lokale Pizzeria",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Via Nuova",
+  },
+  icons: {
+    icon: "/icons/icon-512.png",
+    apple: "/icons/apple-touch-icon.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0d9488",
 };
 
 export default function RootLayout({
@@ -12,7 +28,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="de">
-      <body>{children}</body>
+      <body>
+        {children}
+        <ServiceWorkerRegistration />
+      </body>
     </html>
   );
 }
