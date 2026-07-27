@@ -121,10 +121,13 @@ const STATUS_LABELS: Record<ContentItem["status"], string> = {
   posted: "Gepostet",
 };
 
+// Dunkelmodus-taugliche Statusfarben (helle Schrift auf transparentem Farbton statt
+// der klassischen hellen Badges), damit sie auf dem fast-schwarzen Markenhintergrund
+// gut lesbar bleiben.
 const STATUS_BADGE_CLASSES: Record<ContentItem["status"], string> = {
-  draft: "bg-yellow-100 text-yellow-800",
-  approved: "bg-blue-100 text-blue-800",
-  posted: "bg-green-100 text-green-800",
+  draft: "bg-yellow-400/15 text-yellow-300",
+  approved: "bg-blue-400/15 text-blue-300",
+  posted: "bg-green-400/15 text-green-300",
 };
 
 const REPLY_STATUS_LABELS: Record<Review["replyStatus"], string> = {
@@ -134,9 +137,9 @@ const REPLY_STATUS_LABELS: Record<Review["replyStatus"], string> = {
 };
 
 const REPLY_STATUS_BADGE_CLASSES: Record<Review["replyStatus"], string> = {
-  pending: "bg-yellow-100 text-yellow-800",
-  approved: "bg-blue-100 text-blue-800",
-  posted: "bg-green-100 text-green-800",
+  pending: "bg-yellow-400/15 text-yellow-300",
+  approved: "bg-blue-400/15 text-blue-300",
+  posted: "bg-green-400/15 text-green-300",
 };
 
 const PLATFORM_LABELS: Record<Review["platform"], string> = {
@@ -182,18 +185,22 @@ const TAB_ICONS: Record<TabKey, string> = {
 const PRIMARY_TAB_KEYS: TabKey[] = ["overview", "content", "reviews", "analytics"];
 const MORE_TABS = TABS.filter((t) => !PRIMARY_TAB_KEYS.includes(t.key));
 
-// Wiederverwendete Styles, damit alle Karten/Buttons/Inputs einheitlich wie eine
-// native App aussehen (weiße Karten mit Schatten auf hellgrauem Hintergrund).
-const CARD = "bg-white rounded-2xl p-4 shadow-sm ring-1 ring-black/5";
-const CARD_ROW = "bg-white rounded-xl p-3 shadow-sm ring-1 ring-black/5";
+// Wiederverwendete Styles im echten Via-Nuova-Look (Türkis auf Schwarz, siehe
+// via-nuova.de): dunkle Karten mit türkisfarbenem Rand statt weißer Karten.
+const CARD = "bg-brand-surface rounded-2xl p-4 ring-1 ring-brand-turquoise/15";
+const CARD_ROW = "bg-brand-surface rounded-xl p-3 ring-1 ring-brand-turquoise/15";
 const BTN_PRIMARY =
-  "bg-teal-600 text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-teal-700 active:scale-[0.98] transition disabled:opacity-50 disabled:active:scale-100";
+  "bg-brand-turquoise text-brand-bg text-sm font-semibold px-4 py-2 rounded-xl hover:brightness-110 active:scale-[0.98] transition disabled:opacity-50 disabled:active:scale-100";
 const BTN_SECONDARY =
-  "bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-gray-800 active:scale-[0.98] transition disabled:opacity-50 disabled:active:scale-100";
-const BTN_INFO =
-  "bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-blue-700 active:scale-[0.98] transition disabled:opacity-50 disabled:active:scale-100";
+  "border border-brand-cream/25 text-brand-cream text-sm font-medium px-4 py-2 rounded-xl bg-transparent hover:bg-brand-cream/5 active:scale-[0.98] transition disabled:opacity-50 disabled:active:scale-100";
+// Für die eigentliche Veröffentlichung (invertiert: schwarz mit türkisem Rand),
+// damit sie sich klar von der "Freigeben"-Aktion abhebt.
+const BTN_POST =
+  "bg-brand-bg text-brand-turquoise border border-brand-turquoise text-sm font-semibold px-4 py-2 rounded-xl hover:bg-brand-turquoise/10 active:scale-[0.98] transition disabled:opacity-50 disabled:active:scale-100";
 const INPUT_CLASS =
-  "border border-gray-200 rounded-xl px-3 py-2 text-sm w-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 focus:bg-white transition";
+  "border border-brand-cream/15 rounded-xl px-3 py-2 text-sm w-full bg-black/30 text-brand-cream placeholder:text-brand-cream/30 focus:outline-none focus:ring-2 focus:ring-brand-turquoise/40 focus:border-brand-turquoise focus:bg-black/50 transition";
+const FILE_INPUT_CLASS =
+  "text-sm w-full text-brand-cream/60 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-brand-turquoise file:text-brand-bg file:font-medium file:cursor-pointer";
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("de-DE", {
@@ -210,9 +217,9 @@ function formatDateShort(dateStr: string) {
 
 function Stars({ rating }: { rating: number }) {
   return (
-    <span className="text-amber-500 text-sm">
+    <span className="text-amber-400 text-sm">
       {"★".repeat(rating)}
-      <span className="text-gray-300">{"★".repeat(5 - rating)}</span>
+      <span className="text-brand-cream/15">{"★".repeat(5 - rating)}</span>
     </span>
   );
 }
@@ -613,49 +620,49 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-100 px-4 py-3 [padding-top:env(safe-area-inset-top)]">
-        <h1 className="text-lg font-semibold leading-tight">
+    <div className="min-h-screen bg-brand-bg text-brand-cream">
+      <header className="sticky top-0 z-10 bg-brand-bg/90 backdrop-blur border-b border-brand-turquoise/10 px-4 py-3 [padding-top:env(safe-area-inset-top)]">
+        <h1 className="text-lg font-serif font-medium leading-tight text-brand-cream">
           {business ? business.name : "Marketing-Dashboard"}
         </h1>
-        {business && <p className="text-xs text-gray-500">{business.address}</p>}
+        {business && <p className="text-xs text-brand-cream/50">{business.address}</p>}
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-4 pb-28">
-        {loading && <p className="text-gray-500 text-sm">Lädt...</p>}
+        {loading && <p className="text-brand-cream/40 text-sm">Lädt...</p>}
 
         {!loading && activeTab === "overview" && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className={CARD}>
-                <p className="text-xs text-gray-500">📄 Gesamt Content</p>
+                <p className="text-xs text-brand-cream/50">📄 Gesamt Content</p>
                 <p className="text-2xl font-semibold mt-1">{items.length}</p>
               </div>
               <div className={CARD}>
-                <p className="text-xs text-gray-500">✏️ Entwürfe</p>
-                <p className="text-2xl font-semibold mt-1 text-yellow-700">{stats.byStatus.draft}</p>
+                <p className="text-xs text-brand-cream/50">✏️ Entwürfe</p>
+                <p className="text-2xl font-semibold mt-1 text-yellow-300">{stats.byStatus.draft}</p>
               </div>
               <div className={CARD}>
-                <p className="text-xs text-gray-500">✅ Freigegeben</p>
-                <p className="text-2xl font-semibold mt-1 text-blue-700">{stats.byStatus.approved}</p>
+                <p className="text-xs text-brand-cream/50">✅ Freigegeben</p>
+                <p className="text-2xl font-semibold mt-1 text-blue-300">{stats.byStatus.approved}</p>
               </div>
               <div className={CARD}>
-                <p className="text-xs text-gray-500">🚀 Gepostet</p>
-                <p className="text-2xl font-semibold mt-1 text-green-700">{stats.byStatus.posted}</p>
+                <p className="text-xs text-brand-cream/50">🚀 Gepostet</p>
+                <p className="text-2xl font-semibold mt-1 text-brand-turquoise">{stats.byStatus.posted}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               <div className={CARD}>
-                <p className="text-xs text-gray-500">⭐ Bewertungen</p>
+                <p className="text-xs text-brand-cream/50">⭐ Bewertungen</p>
                 <p className="text-2xl font-semibold mt-1">{reviews.length}</p>
               </div>
               <div className={CARD}>
-                <p className="text-xs text-gray-500">⏳ Ausstehend</p>
-                <p className="text-2xl font-semibold mt-1 text-yellow-700">{stats.pendingReplies}</p>
+                <p className="text-xs text-brand-cream/50">⏳ Ausstehend</p>
+                <p className="text-2xl font-semibold mt-1 text-yellow-300">{stats.pendingReplies}</p>
               </div>
               <div className={CARD}>
-                <p className="text-xs text-gray-500">🌟 Ø Bewertung</p>
+                <p className="text-xs text-brand-cream/50">🌟 Ø Bewertung</p>
                 <p className="text-2xl font-semibold mt-1">{stats.avgRating}</p>
               </div>
             </div>
@@ -663,13 +670,13 @@ export default function DashboardPage() {
             <div className={CARD}>
               <p className="text-sm font-medium mb-3">Content nach Typ</p>
               {Object.keys(stats.byType).length === 0 && (
-                <p className="text-sm text-gray-500">Noch kein Content generiert.</p>
+                <p className="text-sm text-brand-cream/40">Noch kein Content generiert.</p>
               )}
               <div className="space-y-1">
                 {Object.entries(stats.byType).map(([type, count]) => (
                   <div key={type} className="flex justify-between text-sm">
                     <span>{CONTENT_TYPE_LABELS[type] ?? type}</span>
-                    <span className="text-gray-500">{count}</span>
+                    <span className="text-brand-cream/50">{count}</span>
                   </div>
                 ))}
               </div>
@@ -707,7 +714,7 @@ export default function DashboardPage() {
             </div>
 
             {filteredItems.length === 0 && (
-              <p className="text-gray-500 text-sm">
+              <p className="text-brand-cream/40 text-sm">
                 Kein Content gefunden. Rufe /api/generate-content oder /api/generate-calendar auf.
               </p>
             )}
@@ -717,11 +724,11 @@ export default function DashboardPage() {
                 <div key={item.id} className={CARD}>
                   <div className="flex justify-between items-center mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium uppercase text-gray-500">
+                      <span className="text-xs font-medium uppercase text-brand-cream/50">
                         {CONTENT_TYPE_LABELS[item.type] ?? item.type}
                       </span>
                       {item.scheduledDate && (
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-brand-cream/35">
                           · {formatDateShort(item.scheduledDate)}
                         </span>
                       )}
@@ -734,7 +741,7 @@ export default function DashboardPage() {
                   </div>
                   <p className="whitespace-pre-wrap text-sm mb-3">{item.contentText}</p>
                   {postErrors[item.id] && (
-                    <p className="text-xs text-red-600 mb-2">Fehler: {postErrors[item.id]}</p>
+                    <p className="text-xs text-red-400 mb-2">Fehler: {postErrors[item.id]}</p>
                   )}
                   {item.status === "draft" && (
                     <button onClick={() => updateContentStatus(item.id, "approved")} className={BTN_PRIMARY}>
@@ -745,7 +752,7 @@ export default function DashboardPage() {
                     <button
                       onClick={() => postContentItem(item.id)}
                       disabled={postingItemId === item.id}
-                      className={BTN_INFO}
+                      className={BTN_POST}
                     >
                       {postingItemId === item.id ? "Wird gepostet..." : "Jetzt posten"}
                     </button>
@@ -764,14 +771,14 @@ export default function DashboardPage() {
         {!loading && activeTab === "calendar" && (
           <div className="space-y-6">
             {calendarGroups.length === 0 && (
-              <p className="text-gray-500 text-sm">
+              <p className="text-brand-cream/40 text-sm">
                 Noch keine geplanten Inhalte. Nutze /api/generate-calendar, um einen Zeitraum zu
                 planen.
               </p>
             )}
             {calendarGroups.map(([dateKey, dayItems]) => (
               <div key={dateKey}>
-                <h2 className="text-sm font-semibold text-gray-700 mb-2 capitalize">
+                <h2 className="text-sm font-semibold text-brand-cream/70 mb-2 capitalize">
                   {formatDate(dateKey)}
                 </h2>
                 <div className="space-y-2">
@@ -779,7 +786,7 @@ export default function DashboardPage() {
                     <div key={item.id} className={`${CARD_ROW} flex items-center justify-between gap-3`}>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-medium uppercase text-gray-500">
+                          <span className="text-xs font-medium uppercase text-brand-cream/50">
                             {CONTENT_TYPE_LABELS[item.type] ?? item.type}
                           </span>
                           <span
@@ -788,12 +795,12 @@ export default function DashboardPage() {
                             {STATUS_LABELS[item.status]}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 truncate">{item.contentText}</p>
+                        <p className="text-sm text-brand-cream/60 truncate">{item.contentText}</p>
                       </div>
                       {item.status === "draft" && (
                         <button
                           onClick={() => updateContentStatus(item.id, "approved")}
-                          className="shrink-0 bg-teal-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-teal-700"
+                          className="shrink-0 bg-brand-turquoise text-brand-bg text-xs font-semibold px-3 py-1.5 rounded-lg hover:brightness-110"
                         >
                           Freigeben
                         </button>
@@ -801,7 +808,7 @@ export default function DashboardPage() {
                       {item.status === "approved" && (
                         <button
                           onClick={() => updateContentStatus(item.id, "posted")}
-                          className="shrink-0 bg-gray-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-gray-800"
+                          className="shrink-0 border border-brand-cream/25 text-brand-cream text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-brand-cream/5"
                         >
                           Gepostet
                         </button>
@@ -818,7 +825,7 @@ export default function DashboardPage() {
           <div className="space-y-4">
             <form onSubmit={submitReview} className={`${CARD} space-y-3`}>
               <p className="text-sm font-medium">Neue Bewertung erfassen</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-brand-cream/50">
                 Simuliert vorerst die automatische Übernahme von Google/Facebook-Bewertungen.
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -867,7 +874,7 @@ export default function DashboardPage() {
               </button>
             </form>
 
-            {reviews.length === 0 && <p className="text-gray-500 text-sm">Noch keine Bewertungen.</p>}
+            {reviews.length === 0 && <p className="text-brand-cream/40 text-sm">Noch keine Bewertungen.</p>}
 
             <div className="space-y-3">
               {reviews.map((review) => (
@@ -877,7 +884,7 @@ export default function DashboardPage() {
                       <span className="text-sm font-medium">{PLATFORM_LABELS[review.platform]}</span>
                       <Stars rating={review.rating} />
                       {review.reviewerName && (
-                        <span className="text-xs text-gray-400">· {review.reviewerName}</span>
+                        <span className="text-xs text-brand-cream/35">· {review.reviewerName}</span>
                       )}
                     </div>
                     <span
@@ -889,8 +896,8 @@ export default function DashboardPage() {
                   <p className="text-sm mb-3">{review.reviewText}</p>
 
                   {review.replyText ? (
-                    <div className="bg-gray-50 rounded-xl p-3 mb-3">
-                      <p className="text-xs text-gray-500 mb-1">Antwort-Entwurf</p>
+                    <div className="bg-black/25 rounded-xl p-3 mb-3">
+                      <p className="text-xs text-brand-cream/50 mb-1">Antwort-Entwurf</p>
                       <p className="text-sm whitespace-pre-wrap">{review.replyText}</p>
                     </div>
                   ) : (
@@ -923,7 +930,7 @@ export default function DashboardPage() {
           <div className="space-y-4">
             <form onSubmit={submitCustomer} className={`${CARD} space-y-3`}>
               <p className="text-sm font-medium">Neuen Kunden erfassen</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-brand-cream/50">
                 Manuelle Kundenliste (keine Kassen-/POS-Anbindung) als Basis für persönliche
                 Geburtstags- und Rückgewinnungsnachrichten.
               </p>
@@ -952,7 +959,7 @@ export default function DashboardPage() {
                 />
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <label className="text-xs text-gray-500">
+                <label className="text-xs text-brand-cream/50">
                   Geburtstag
                   <input
                     type="date"
@@ -961,7 +968,7 @@ export default function DashboardPage() {
                     className={`${INPUT_CLASS} mt-1`}
                   />
                 </label>
-                <label className="text-xs text-gray-500">
+                <label className="text-xs text-brand-cream/50">
                   Letzter Besuch
                   <input
                     type="date"
@@ -983,7 +990,7 @@ export default function DashboardPage() {
               </button>
             </form>
 
-            {customers.length === 0 && <p className="text-gray-500 text-sm">Noch keine Kunden erfasst.</p>}
+            {customers.length === 0 && <p className="text-brand-cream/40 text-sm">Noch keine Kunden erfasst.</p>}
 
             <div className="space-y-3">
               {customers.map((customer) => {
@@ -995,19 +1002,19 @@ export default function DashboardPage() {
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <p className="text-sm font-medium">{customer.name}</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-brand-cream/50">
                           {[customer.email, customer.phone].filter(Boolean).join(" · ")}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-brand-cream/35">
                           {customer.birthday && `Geburtstag: ${formatDateShort(customer.birthday)}`}
                           {customer.birthday && customer.lastVisit && " · "}
                           {customer.lastVisit && `Letzter Besuch: ${formatDateShort(customer.lastVisit)}`}
                         </p>
-                        {customer.notes && <p className="text-xs text-gray-400 mt-1">{customer.notes}</p>}
+                        {customer.notes && <p className="text-xs text-brand-cream/35 mt-1">{customer.notes}</p>}
                       </div>
                       <button
                         onClick={() => deleteCustomer(customer.id)}
-                        className="text-xs text-gray-400 hover:text-red-600"
+                        className="text-xs text-brand-cream/35 hover:text-red-400"
                       >
                         Löschen
                       </button>
@@ -1017,14 +1024,14 @@ export default function DashboardPage() {
                       <button
                         onClick={() => generateCustomerMessage(customer.id, "customer_birthday")}
                         disabled={generatingMessageFor === birthdayKey}
-                        className="bg-teal-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-teal-700 disabled:opacity-50"
+                        className="bg-brand-turquoise text-brand-bg text-xs font-semibold px-3 py-1.5 rounded-lg hover:brightness-110 disabled:opacity-50"
                       >
                         {generatingMessageFor === birthdayKey ? "Generiert..." : "Geburtstagsnachricht generieren"}
                       </button>
                       <button
                         onClick={() => generateCustomerMessage(customer.id, "customer_winback")}
                         disabled={generatingMessageFor === winbackKey}
-                        className="bg-gray-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-gray-800 disabled:opacity-50"
+                        className="border border-brand-cream/25 text-brand-cream text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-brand-cream/5 disabled:opacity-50"
                       >
                         {generatingMessageFor === winbackKey ? "Generiert..." : "Rückgewinnungsnachricht generieren"}
                       </button>
@@ -1033,8 +1040,8 @@ export default function DashboardPage() {
                     {messages.length > 0 && (
                       <div className="space-y-2">
                         {messages.map((m) => (
-                          <div key={m.id} className="bg-gray-50 rounded-xl p-3">
-                            <p className="text-xs text-gray-500 mb-1">{CONTENT_TYPE_LABELS[m.type] ?? m.type}</p>
+                          <div key={m.id} className="bg-black/25 rounded-xl p-3">
+                            <p className="text-xs text-brand-cream/50 mb-1">{CONTENT_TYPE_LABELS[m.type] ?? m.type}</p>
                             <p className="text-sm whitespace-pre-wrap">{m.contentText}</p>
                           </div>
                         ))}
@@ -1051,7 +1058,7 @@ export default function DashboardPage() {
           <div className="space-y-4">
             <form onSubmit={submitImage} className={`${CARD} space-y-3`}>
               <p className="text-sm font-medium">Neues Bild generieren</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-brand-cream/50">
                 Beschreibe ein Gericht oder Motiv (z.B. "Pizza Margherita mit frischem Basilikum").
                 Die KI ergänzt automatisch professionellen Food-Fotografie-Stil.
               </p>
@@ -1063,20 +1070,20 @@ export default function DashboardPage() {
                 rows={2}
                 required
               />
-              {imageError && <p className="text-xs text-red-600">{imageError}</p>}
+              {imageError && <p className="text-xs text-red-400">{imageError}</p>}
               <button type="submit" disabled={generatingImage} className={BTN_PRIMARY}>
                 {generatingImage ? "Generiert... (kann 10-20 Sek. dauern)" : "Bild generieren"}
               </button>
             </form>
 
-            {images.length === 0 && <p className="text-gray-500 text-sm">Noch keine Bilder generiert.</p>}
+            {images.length === 0 && <p className="text-brand-cream/40 text-sm">Noch keine Bilder generiert.</p>}
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {images.map((image) => (
-                <div key={image.id} className="bg-white rounded-2xl overflow-hidden shadow-sm ring-1 ring-black/5">
+                <div key={image.id} className="bg-brand-surface rounded-2xl overflow-hidden ring-1 ring-brand-turquoise/15">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={image.imagePath} alt={image.prompt} className="w-full aspect-square object-cover" />
-                  <p className="text-xs text-gray-500 p-2 truncate" title={image.prompt}>
+                  <p className="text-xs text-brand-cream/50 p-2 truncate" title={image.prompt}>
                     {image.prompt}
                   </p>
                 </div>
@@ -1089,7 +1096,7 @@ export default function DashboardPage() {
           <div className="space-y-4">
             <form onSubmit={submitMediaUpload} className={`${CARD} space-y-3`}>
               <p className="text-sm font-medium">Echtes Foto/Video hochladen</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-brand-cream/50">
                 Lade hier deine mit dem Handy aufgenommenen Fotos/Videos hoch (z.B. aus einem
                 Foto-Shooting nach dem Foto-Shooting-Leitfaden). Diese echten Aufnahmen sind getrennt
                 von den KI-generierten Bildern im "Bilder"-Reiter.
@@ -1099,7 +1106,7 @@ export default function DashboardPage() {
                 type="file"
                 accept="image/*,video/*"
                 onChange={(e) => setMediaFile(e.target.files?.[0] ?? null)}
-                className="text-sm w-full"
+                className={FILE_INPUT_CLASS}
                 required
               />
               <textarea
@@ -1109,19 +1116,19 @@ export default function DashboardPage() {
                 className={INPUT_CLASS}
                 rows={2}
               />
-              {mediaError && <p className="text-xs text-red-600">{mediaError}</p>}
+              {mediaError && <p className="text-xs text-red-400">{mediaError}</p>}
               <button type="submit" disabled={uploadingMedia || !mediaFile} className={BTN_PRIMARY}>
                 {uploadingMedia ? "Lädt hoch..." : "Hochladen"}
               </button>
             </form>
 
             {mediaAssets.length === 0 && (
-              <p className="text-gray-500 text-sm">Noch keine echten Fotos/Videos hochgeladen.</p>
+              <p className="text-brand-cream/40 text-sm">Noch keine echten Fotos/Videos hochgeladen.</p>
             )}
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {mediaAssets.map((asset) => (
-                <div key={asset.id} className="bg-white rounded-2xl overflow-hidden shadow-sm ring-1 ring-black/5">
+                <div key={asset.id} className="bg-brand-surface rounded-2xl overflow-hidden ring-1 ring-brand-turquoise/15">
                   {asset.type === "video" ? (
                     <video src={asset.url} controls className="w-full aspect-square object-cover" />
                   ) : (
@@ -1134,7 +1141,7 @@ export default function DashboardPage() {
                   )}
                   <div className="p-2 space-y-1">
                     {asset.description && (
-                      <p className="text-xs text-gray-600 truncate" title={asset.description}>
+                      <p className="text-xs text-brand-cream/60 truncate" title={asset.description}>
                         {asset.description}
                       </p>
                     )}
@@ -1142,14 +1149,14 @@ export default function DashboardPage() {
                       <button
                         onClick={() => toggleMediaUsed(asset)}
                         className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                          asset.used ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                          asset.used ? "bg-green-400/15 text-green-300" : "bg-yellow-400/15 text-yellow-300"
                         }`}
                       >
                         {asset.used ? "Verwendet" : "Noch nicht verwendet"}
                       </button>
                       <button
                         onClick={() => deleteMediaAsset(asset.id)}
-                        className="text-xs text-red-600 hover:underline"
+                        className="text-xs text-red-400 hover:underline"
                       >
                         Löschen
                       </button>
@@ -1165,7 +1172,7 @@ export default function DashboardPage() {
           <div className="space-y-4">
             <div className={CARD}>
               <p className="text-sm font-medium mb-1">Schema.org / JSON-LD für die Website</p>
-              <p className="text-xs text-gray-500 mb-3">
+              <p className="text-xs text-brand-cream/50 mb-3">
                 Dieser Code kann 1:1 in den <code>&lt;head&gt;</code>-Bereich der eigentlichen
                 Via-Nuova-Website eingefügt werden, damit Google Business-Infos und Bewertungen
                 korrekt in der Suche anzeigen kann. Basiert nur auf echten, gespeicherten Daten
@@ -1174,7 +1181,7 @@ export default function DashboardPage() {
               <button onClick={copySeoScript} className={`${BTN_PRIMARY} mb-3`}>
                 {seoCopied ? "Kopiert!" : "In Zwischenablage kopieren"}
               </button>
-              <pre className="bg-gray-50 rounded-xl p-3 text-xs overflow-x-auto whitespace-pre-wrap">
+              <pre className="bg-black/30 rounded-xl p-3 text-xs overflow-x-auto whitespace-pre-wrap text-brand-cream/80">
                 {seoScriptTag || "Lädt..."}
               </pre>
             </div>
@@ -1186,7 +1193,7 @@ export default function DashboardPage() {
             {connectBanner && (
               <div
                 className={`text-sm px-3 py-2 rounded-xl ${
-                  connectBanner.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                  connectBanner.type === "success" ? "bg-green-400/15 text-green-300" : "bg-red-400/15 text-red-300"
                 }`}
               >
                 {connectBanner.type === "success"
@@ -1195,7 +1202,7 @@ export default function DashboardPage() {
               </div>
             )}
 
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-brand-cream/50">
               Hier werden die echten Zugriffstoken für Facebook, Instagram und Google Business
               hinterlegt, damit freigegebener Content automatisch gepostet werden kann.
             </p>
@@ -1208,18 +1215,18 @@ export default function DashboardPage() {
                     <div>
                       <p className="text-sm font-medium">{CONNECTION_PLATFORM_LABELS[platform]}</p>
                       {connection ? (
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-brand-cream/50">
                           {connection.accountName ?? connection.accountId} · verbunden am{" "}
                           {formatDateShort(connection.updatedAt)}
                         </p>
                       ) : (
-                        <p className="text-xs text-gray-400">Noch nicht verbunden</p>
+                        <p className="text-xs text-brand-cream/35">Noch nicht verbunden</p>
                       )}
                     </div>
                     {connection ? (
                       <span
                         className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                          connection.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"
+                          connection.isActive ? "bg-green-400/15 text-green-300" : "bg-brand-cream/10 text-brand-cream/50"
                         }`}
                       >
                         {connection.isActive ? "Aktiv" : "Inaktiv"}
@@ -1227,7 +1234,7 @@ export default function DashboardPage() {
                     ) : (
                       <a
                         href={platform === "google_business" ? "/api/social/connect/google" : "/api/social/connect/facebook"}
-                        className={BTN_INFO}
+                        className={BTN_POST}
                       >
                         Verbinden
                       </a>
@@ -1236,7 +1243,7 @@ export default function DashboardPage() {
                 );
               })}
             </div>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-brand-cream/35">
               Facebook und Instagram werden über einen einzigen Klick auf &quot;Facebook&quot; verbunden,
               da Instagram-Postings über die verknüpfte Facebook-Page laufen.
             </p>
@@ -1245,7 +1252,7 @@ export default function DashboardPage() {
 
         {!loading && activeTab === "analytics" && (
           <div className="space-y-4">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-brand-cream/50">
               Automatisch generierte Marketing-Berichte – wie von einer Agentur, nur auf Basis
               deiner echten Zahlen (Posts, Reichweite, Bewertungen) plus KI-gestützten
               Handlungsempfehlungen und SEO-Keyword-Vorschlägen.
@@ -1267,9 +1274,9 @@ export default function DashboardPage() {
                 {generatingReport === "monthly" ? "Wird erstellt..." : "Monatsbericht jetzt erstellen"}
               </button>
             </div>
-            {reportError && <p className="text-xs text-red-600">{reportError}</p>}
+            {reportError && <p className="text-xs text-red-400">{reportError}</p>}
 
-            {reports.length === 0 && <p className="text-gray-500 text-sm">Noch keine Berichte erstellt.</p>}
+            {reports.length === 0 && <p className="text-brand-cream/40 text-sm">Noch keine Berichte erstellt.</p>}
 
             <div className="space-y-3">
               {reports.map((report) => (
@@ -1279,28 +1286,28 @@ export default function DashboardPage() {
                       {report.periodType === "weekly" ? "Wochenbericht" : "Monatsbericht"} ·{" "}
                       {formatDateShort(report.periodStart)} – {formatDateShort(report.periodEnd)}
                     </span>
-                    <span className="text-xs text-gray-400 shrink-0">
+                    <span className="text-xs text-brand-cream/40 shrink-0">
                       {report.metrics.postsPublished} Posts · {report.metrics.totalReach} Reichweite
                     </span>
                   </summary>
                   <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center mb-4">
-                    <div className="bg-gray-50 rounded-xl p-2">
+                    <div className="bg-black/25 rounded-xl p-2">
                       <p className="text-lg font-semibold">{report.metrics.postsPublished}</p>
-                      <p className="text-xs text-gray-500">Posts</p>
+                      <p className="text-xs text-brand-cream/50">Posts</p>
                     </div>
-                    <div className="bg-gray-50 rounded-xl p-2">
+                    <div className="bg-black/25 rounded-xl p-2">
                       <p className="text-lg font-semibold">{report.metrics.totalReach}</p>
-                      <p className="text-xs text-gray-500">Reichweite</p>
+                      <p className="text-xs text-brand-cream/50">Reichweite</p>
                     </div>
-                    <div className="bg-gray-50 rounded-xl p-2">
+                    <div className="bg-black/25 rounded-xl p-2">
                       <p className="text-lg font-semibold">{report.metrics.totalEngagement}</p>
-                      <p className="text-xs text-gray-500">Interaktionen</p>
+                      <p className="text-xs text-brand-cream/50">Interaktionen</p>
                     </div>
-                    <div className="bg-gray-50 rounded-xl p-2">
+                    <div className="bg-black/25 rounded-xl p-2">
                       <p className="text-lg font-semibold">
                         {report.metrics.avgRating !== null ? report.metrics.avgRating.toFixed(1) : "–"}
                       </p>
-                      <p className="text-xs text-gray-500">Ø Bewertung ({report.metrics.newReviews} neu)</p>
+                      <p className="text-xs text-brand-cream/50">Ø Bewertung ({report.metrics.newReviews} neu)</p>
                     </div>
                   </div>
                   <p className="whitespace-pre-wrap text-sm">{report.summary}</p>
@@ -1312,7 +1319,7 @@ export default function DashboardPage() {
       </main>
 
       {/* Untere Navigation - fest am Bildschirmrand, wie bei einer nativen App. */}
-      <nav className="fixed bottom-0 inset-x-0 z-20 bg-white/95 backdrop-blur border-t border-gray-100 [padding-bottom:env(safe-area-inset-bottom)]">
+      <nav className="fixed bottom-0 inset-x-0 z-20 bg-brand-bg/95 backdrop-blur border-t border-brand-turquoise/10 [padding-bottom:env(safe-area-inset-bottom)]">
         <div className="max-w-4xl mx-auto grid grid-cols-5">
           {PRIMARY_TAB_KEYS.map((key) => {
             const tab = TABS.find((t) => t.key === key)!;
@@ -1322,7 +1329,7 @@ export default function DashboardPage() {
                 key={key}
                 onClick={() => selectTab(key)}
                 className={`flex flex-col items-center justify-center gap-0.5 py-2.5 text-[11px] font-medium ${
-                  active ? "text-teal-600" : "text-gray-400"
+                  active ? "text-brand-turquoise" : "text-brand-cream/40"
                 }`}
               >
                 <span className="text-lg leading-none">{TAB_ICONS[key]}</span>
@@ -1333,7 +1340,7 @@ export default function DashboardPage() {
           <button
             onClick={() => setMoreOpen((v) => !v)}
             className={`flex flex-col items-center justify-center gap-0.5 py-2.5 text-[11px] font-medium ${
-              moreOpen || !PRIMARY_TAB_KEYS.includes(activeTab) ? "text-teal-600" : "text-gray-400"
+              moreOpen || !PRIMARY_TAB_KEYS.includes(activeTab) ? "text-brand-turquoise" : "text-brand-cream/40"
             }`}
           >
             <span className="text-lg leading-none">⋯</span>
@@ -1345,16 +1352,18 @@ export default function DashboardPage() {
       {/* "Mehr"-Menü als Bottom Sheet für die restlichen Bereiche. */}
       {moreOpen && (
         <div className="fixed inset-0 z-30">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setMoreOpen(false)} />
-          <div className="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-lg">
-            <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
+          <div className="absolute inset-0 bg-black/60" onClick={() => setMoreOpen(false)} />
+          <div className="absolute bottom-0 inset-x-0 bg-brand-surface border-t border-brand-turquoise/15 rounded-t-2xl p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-lg shadow-black/50">
+            <div className="w-10 h-1 bg-brand-cream/20 rounded-full mx-auto mb-4" />
             <div className="grid grid-cols-3 gap-3">
               {MORE_TABS.map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => selectTab(tab.key)}
                   className={`flex flex-col items-center justify-center gap-1 py-4 rounded-xl text-xs font-medium ${
-                    activeTab === tab.key ? "bg-teal-50 text-teal-700" : "bg-gray-50 text-gray-600"
+                    activeTab === tab.key
+                      ? "bg-brand-turquoise/10 text-brand-turquoise"
+                      : "bg-white/5 text-brand-cream/70"
                   }`}
                 >
                   <span className="text-xl leading-none">{TAB_ICONS[tab.key]}</span>

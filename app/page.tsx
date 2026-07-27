@@ -1,17 +1,19 @@
 export default function Home() {
   return (
-    <main className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-4">Pizzeria KI-Marketing</h1>
-      <p className="mb-4 text-gray-600">
-        Willkommen. Gehe zum Dashboard, um generierte Inhalte zu sehen und
-        freizugeben.
-      </p>
-      <a
-        href="/dashboard"
-        className="inline-block bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700"
-      >
-        Zum Dashboard
-      </a>
+    <main className="min-h-screen flex items-center justify-center p-6">
+      <div className="max-w-md text-center">
+        <h1 className="text-3xl font-serif font-medium mb-4 text-brand-cream">Via Nuova</h1>
+        <p className="mb-6 text-brand-cream/60">
+          Willkommen. Gehe zum Dashboard, um generierte Inhalte zu sehen und
+          freizugeben.
+        </p>
+        <a
+          href="/dashboard"
+          className="inline-block bg-brand-turquoise text-brand-bg font-semibold px-5 py-2.5 rounded-xl hover:brightness-110 transition"
+        >
+          Zum Dashboard
+        </a>
+      </div>
     </main>
   );
 }

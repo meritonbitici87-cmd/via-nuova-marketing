@@ -1,6 +1,14 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
+import { Cormorant_Garamond } from "next/font/google";
 import { ServiceWorkerRegistration } from "./ServiceWorkerRegistration";
+
+// Gleiche Schriftart wie auf via-nuova.de, für den Wiedererkennungswert im Dashboard.
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["300", "500", "600"],
+  variable: "--font-cormorant",
+});
 
 export const metadata: Metadata = {
   title: "Pizzeria KI-Marketing",
@@ -8,7 +16,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "Via Nuova",
   },
   icons: {
@@ -18,7 +26,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0d9488",
+  themeColor: "#0a0a0a",
   viewportFit: "cover",
 };
 
@@ -28,8 +36,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="de">
-      <body>
+    <html lang="de" className={cormorant.variable}>
+      <body className="bg-brand-bg text-brand-cream">
         {children}
         <ServiceWorkerRegistration />
       </body>
