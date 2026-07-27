@@ -4,3 +4,7 @@ node_modules/
 .env.local
 *.log
 public/generated-images/*.png
+
+# Nur lokale Windows-Taskplaner-Automatisierung, enthält CRON_SECRET im Klartext -
+# nicht Teil der deploybaren App, wird durch Vercel Cron ersetzt sobald gehostet.
+scripts/
