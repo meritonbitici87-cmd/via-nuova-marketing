@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Business {
+  id             String   @id @default(cuid())
+  name           String
+  address        String
+  phone          String?
+  specialties    String[] // z.B. ["Pizza Napoletana", "Pasta", "Tiramisu"]
+  toneOfVoice    String   @default("modern, herzlich, lokal verwurzelt")
+  googlePlaceId  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+enum ContentType {
+  instagram
+  facebook
+  google_business
+  blog
+  review_reply
+  story
+  reel_script
+  tiktok_script
+  newsletter
+  ad_copy
+  menu_description
+  offer
+  seasonal_campaign
+  holiday_promo
+  faq
+  customer_birthday
+  customer_winback
+  photo_shoot_guide
+}
+
+enum ContentStatus {
+  draft
+  approved
+  posted
+}
+
+model ContentItem {
+  id            String        @id @default(cuid())
+  type          ContentType
+  status        ContentStatus @default(draft)
+  contentText   String
+  scheduledDate DateTime?
+  sourcePrompt  String?       // Kontext, der zur Generierung genutzt wurde
+  customerId    String?       // gesetzt bei customer_birthday/customer_winback Nachrichten
+  customer      Customer?     @relation(fields: [customerId], references: [id])
+  images        GeneratedImage[]
+  mediaAssets   MediaAsset[]
+  postLogs      PostLog[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+// Einfache, manuell gepflegte Kundenliste (keine Kassen-/POS-Anbindung).
+// Dient als Basis für personalisierte Kundenbindungs-Nachrichten (Geburtstag, Rückgewinnung).
+model Customer {
+  id           String        @id @default(cuid())
+  name         String
+  email        String?
+  phone        String?
+  birthday     DateTime?
+  lastVisit    DateTime?
+  notes        String?
+  contentItems ContentItem[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+// Von der Bild-KI (OpenAI) generierte Bilder. Die Datei selbst liegt unter /public/generated-images,
+// hier wird nur der Pfad + der verwendete Prompt gespeichert.
+model GeneratedImage {
+  id            String       @id @default(cuid())
+  prompt        String
+  imagePath     String
+  contentItemId String?
+  contentItem   ContentItem? @relation(fields: [contentItemId], references: [id])
+  createdAt     DateTime     @default(now())
+}
+
+enum MediaType {
+  photo
+  video
+}
+
+// Echte, selbst aufgenommene Fotos/Videos (z.B. aus einem Foto-Shooting laut
+// photo_shoot_guide-Leitfaden). Die Datei selbst liegt in einem Supabase-Storage-Bucket,
+// hier wird nur die öffentliche URL + Metadaten gespeichert. Bewusst getrennt von
+// GeneratedImage (KI-generierte Bilder), da unterschiedliche Herkunft/Vertrauenswürdigkeit.
+model MediaAsset {
+  id            String       @id @default(cuid())
+  type          MediaType
+  storagePath   String       // Pfad im Supabase-Bucket (für spätere Löschung benötigt)
+  url           String       // öffentliche URL zur Anzeige
+  description   String?      // z.B. Motiv-Name aus dem Foto-Shooting-Leitfaden
+  used          Boolean      @default(false)
+  contentItemId String?
+  contentItem   ContentItem? @relation(fields: [contentItemId], references: [id])
+  createdAt     DateTime     @default(now())
+}
+
+enum SocialPlatform {
+  facebook
+  instagram
+  google_business
+}
+
+// Zugriffstoken + Konto-IDs für die echten Social-Media-APIs (Meta Graph API,
+// Google Business Profile API). Wird vom Dashboard und von den Posting-Endpunkten
+// gelesen, um automatisch auf Facebook/Instagram/Google Business zu posten.
+// Es gibt normalerweise genau einen aktiven Eintrag pro Plattform.
+model SocialConnection {
+  id              String         @id @default(cuid())
+  platform        SocialPlatform @unique
+  accountId       String         // Facebook Page ID / Instagram Business Account ID / Google Business Account ID
+  locationId      String?        // nur bei google_business: die Location-ID der Filiale
+  accountName     String?        // z.B. "Via Nuova" (nur zur Anzeige im Dashboard)
+  accessToken     String         // Long-lived Access Token bzw. Google OAuth Access Token
+  refreshToken    String?        // nur bei Google Business genutzt (Access Token läuft nach 1h ab)
+  tokenExpiresAt  DateTime?
+  isActive        Boolean        @default(true)
+  postLogs        PostLog[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+enum PostLogStatus {
+  pending
+  success
+  failed
+}
+
+// Protokoll jedes Versuchs, ein ContentItem über eine SocialConnection zu veröffentlichen.
+// Ermöglicht später Auswertung ("was wurde wann gepostet") und Fehlersuche bei fehlgeschlagenen Posts.
+model PostLog {
+  id                 String           @id @default(cuid())
+  contentItemId      String
+  contentItem        ContentItem      @relation(fields: [contentItemId], references: [id])
+  socialConnectionId String
+  socialConnection   SocialConnection @relation(fields: [socialConnectionId], references: [id])
+  externalPostId     String?          // vom Plattform-API zurückgegebene Post-ID (für spätere Insights)
+  status             PostLogStatus    @default(pending)
+  errorMessage       String?
+  postedAt           DateTime?
+  // Letzter bekannter Insights-Stand (per lib/insights.ts nachgeladen, nicht beim Posten selbst
+  // gesetzt, da Meta/Google frisch geposteten Content noch keine verlässlichen Zahlen liefern).
+  reach              Int?
+  impressions        Int?
+  likeCount          Int?
+  commentCount       Int?
+  shareCount         Int?
+  insightsFetchedAt  DateTime?
+  createdAt          DateTime         @default(now())
+}
+
+enum ReportPeriod {
+  weekly
+  monthly
+}
+
+// Automatisch generierter Marketing-/SEO-Bericht (Wochen- oder Monatsanalyse), im Stil
+// einer bezahlten Marketing-Agentur: aggregiert echte Kennzahlen (Posts, Reichweite,
+// Bewertungen) und lässt Claude daraus eine geschriebene Analyse + Handlungsempfehlungen
+// formulieren. "metrics" enthält die reinen Zahlen, "summary" den geschriebenen Text.
+model AnalyticsReport {
+  id          String       @id @default(cuid())
+  periodType  ReportPeriod
+  periodStart DateTime
+  periodEnd   DateTime
+  metrics     Json
+  summary     String
+  createdAt   DateTime     @default(now())
+}
+
+enum ReviewPlatform {
+  google
+  facebook
+}
+
+enum ReplyStatus {
+  pending
+  approved
+  posted
+}
+
+model Review {
+  id           String         @id @default(cuid())
+  platform     ReviewPlatform
+  rating       Int
+  reviewText   String
+  reviewerName String?
+  replyText    String?
+  replyStatus  ReplyStatus    @default(pending)
+  createdAt    DateTime       @default(now())
+}
