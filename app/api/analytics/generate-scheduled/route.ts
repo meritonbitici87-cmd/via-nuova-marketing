@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateAnalyticsReport } from "@/lib/generateAnalyticsReport";
+import { isAuthorizedCronRequest } from "@/lib/cronAuth";
 
 export const dynamic = "force-dynamic";
 
-// Für einen Scheduler gedacht (Windows-Taskplaner + curl, Vercel Cron, ...):
-// ?period=weekly einmal pro Woche, ?period=monthly einmal pro Monat aufrufen.
-// Per CRON_SECRET geschützt, genau wie /api/social/publish-scheduled.
+// Für Vercel Cron gedacht (siehe vercel.json): ?period=weekly einmal pro Woche,
+// ?period=monthly einmal pro Monat. Per CRON_SECRET geschützt, genau wie
+// /api/social/publish-scheduled.
 export async function GET(req: NextRequest) {
-  const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret) {
-    const provided = req.headers.get("x-cron-secret") ?? req.nextUrl.searchParams.get("secret");
-    if (provided !== cronSecret) {
-      return NextResponse.json({ error: "Nicht autorisiert." }, { status: 401 });
-    }
+  if (!isAuthorizedCronRequest(req)) {
+    return NextResponse.json({ error: "Nicht autorisiert." }, { status: 401 });
   }
 
   const period = req.nextUrl.searchParams.get("period");

@@ -1,0 +1,7 @@
+{
+  "crons": [
+    { "path": "/api/social/publish-scheduled", "schedule": "0 8 * * *" },
+    { "path": "/api/analytics/generate-scheduled?period=weekly", "schedule": "0 6 * * 1" },
+    { "path": "/api/analytics/generate-scheduled?period=monthly", "schedule": "0 6 1 * *" }
+  ]
+}
