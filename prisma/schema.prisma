@@ -3,8 +3,13 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // Transaction-mode Pooler (Port 6543) - für normale App-Queries, IPv4-tauglich
+  // (nötig für Vercel/serverless, direkte Verbindung auf Port 5432 ist von dort nicht erreichbar).
+  url       = env("DATABASE_URL")
+  // Session-mode Pooler (Port 5432) - nur für "prisma migrate", da der Transaction-Pooler
+  // keine prepared statements unterstützt, die Migrationen brauchen.
+  directUrl = env("DIRECT_URL")
 }
 
 model Business {
