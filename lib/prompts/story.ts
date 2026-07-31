@@ -1,16 +1,17 @@
 import { BusinessProfile, GenerationOptions } from "./types";
+import { buildFocusLine } from "./focusLine";
 
 export function buildStoryPrompt(
   business: BusinessProfile,
   options: GenerationOptions
 ): string {
-  const { weekday, occasion } = options;
+  const { weekday, occasion, theme } = options;
   return `Du bist Social-Media-Stratege für eine lokale Pizzeria und entwickelst Ideen für
 Instagram/Facebook-Stories (kurzlebige 24h-Inhalte, kein Feed-Post).
 
 Pizzeria: ${business.name}
 Standort: ${business.address}
-Spezialitäten: ${business.specialties.join(", ")}
+${buildFocusLine(business, theme)}
 Tonalität: ${business.toneOfVoice}
 Wochentag: ${weekday}
 ${occasion ? `Anlass: ${occasion}` : ""}

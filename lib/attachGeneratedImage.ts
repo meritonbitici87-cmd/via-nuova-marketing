@@ -11,7 +11,8 @@ const prisma = new PrismaClient();
 export async function generateAndAttachImage(
   contentItemId: string,
   businessId: string,
-  motif: string
+  motif: string,
+  isAmbiance = false
 ) {
   const business = await prisma.business.findUnique({ where: { id: businessId } });
   if (!business) {
@@ -23,9 +24,11 @@ export async function generateAndAttachImage(
       name: business.name,
       address: business.address,
       specialties: business.specialties,
+      ambianceHighlights: business.ambianceHighlights,
       toneOfVoice: business.toneOfVoice,
     },
-    motif
+    motif,
+    isAmbiance
   );
 
   const base64 = await generateImage(prompt);

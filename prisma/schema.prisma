@@ -13,15 +13,19 @@ datasource db {
 }
 
 model Business {
-  id             String   @id @default(cuid())
-  name           String
-  address        String
-  phone          String?
-  specialties    String[] // z.B. ["Pizza Napoletana", "Pasta", "Tiramisu"]
-  toneOfVoice    String   @default("modern, herzlich, lokal verwurzelt")
-  googlePlaceId  String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  name               String
+  address            String
+  phone              String?
+  specialties        String[] // z.B. ["Pizza Napoletana", "Pasta", "Tiramisu"]
+  // Was am Ort/Ambiente selbst besonders ist (z.B. "Gemütliches Obergeschoss mit
+  // Blick auf die Altstadt"), getrennt von den Speisen. Wird für Content genutzt, der
+  // gezielt die Location/Atmosphäre statt eines Gerichts in den Fokus stellt.
+  ambianceHighlights String[] @default([])
+  toneOfVoice        String   @default("modern, herzlich, lokal verwurzelt")
+  googlePlaceId      String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 enum ContentType {
@@ -102,16 +106,24 @@ enum MediaType {
 // photo_shoot_guide-Leitfaden). Die Datei selbst liegt in einem Supabase-Storage-Bucket,
 // hier wird nur die öffentliche URL + Metadaten gespeichert. Bewusst getrennt von
 // GeneratedImage (KI-generierte Bilder), da unterschiedliche Herkunft/Vertrauenswürdigkeit.
+enum MediaCategory {
+  food
+  ambiance
+}
+
 model MediaAsset {
-  id            String       @id @default(cuid())
+  id            String        @id @default(cuid())
   type          MediaType
-  storagePath   String       // Pfad im Supabase-Bucket (für spätere Löschung benötigt)
-  url           String       // öffentliche URL zur Anzeige
-  description   String?      // z.B. Motiv-Name aus dem Foto-Shooting-Leitfaden
-  used          Boolean      @default(false)
+  storagePath   String        // Pfad im Supabase-Bucket (für spätere Löschung benötigt)
+  url           String        // öffentliche URL zur Anzeige
+  description   String?       // z.B. Motiv-Name aus dem Foto-Shooting-Leitfaden
+  // Steuert, für welche Art von Post (Essen vs. Location/Ambiente) dieses Material bei
+  // der automatischen Generierung bevorzugt herangezogen wird.
+  category      MediaCategory @default(food)
+  used          Boolean       @default(false)
   contentItemId String?
-  contentItem   ContentItem? @relation(fields: [contentItemId], references: [id])
-  createdAt     DateTime     @default(now())
+  contentItem   ContentItem?  @relation(fields: [contentItemId], references: [id])
+  createdAt     DateTime      @default(now())
 }
 
 enum SocialPlatform {

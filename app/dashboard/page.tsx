@@ -7,6 +7,7 @@ interface Business {
   name: string;
   address: string;
   specialties: string[];
+  ambianceHighlights: string[];
   toneOfVoice: string;
 }
 
@@ -46,6 +47,7 @@ interface MediaAsset {
   type: "photo" | "video";
   url: string;
   description: string | null;
+  category: "food" | "ambiance";
   used: boolean;
   contentItemId: string | null;
   createdAt: string;
@@ -269,6 +271,7 @@ export default function DashboardPage() {
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaDescription, setMediaDescription] = useState("");
+  const [mediaCategory, setMediaCategory] = useState<"food" | "ambiance">("food");
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [mediaError, setMediaError] = useState<string | null>(null);
 
@@ -285,6 +288,20 @@ export default function DashboardPage() {
   const [reports, setReports] = useState<AnalyticsReport[]>([]);
   const [generatingReport, setGeneratingReport] = useState<"weekly" | "monthly" | null>(null);
   const [reportError, setReportError] = useState<string | null>(null);
+
+  const [specialtiesText, setSpecialtiesText] = useState("");
+  const [ambianceText, setAmbianceText] = useState("");
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
+
+  useEffect(() => {
+    if (business && !profileLoaded) {
+      setSpecialtiesText(business.specialties.join("\n"));
+      setAmbianceText(business.ambianceHighlights.join("\n"));
+      setProfileLoaded(true);
+    }
+  }, [business, profileLoaded]);
 
   useEffect(() => {
     fetchAll();
@@ -326,6 +343,28 @@ export default function DashboardPage() {
     const data = await res.json();
     setBusiness(data.business ?? null);
     return data.business ?? null;
+  }
+
+  async function saveBusinessProfile() {
+    if (!business) return;
+    setSavingProfile(true);
+    setProfileSaved(false);
+    try {
+      await fetch("/api/business", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: business.id,
+          specialties: specialtiesText.split("\n").map((s) => s.trim()).filter(Boolean),
+          ambianceHighlights: ambianceText.split("\n").map((s) => s.trim()).filter(Boolean),
+        }),
+      });
+      await fetchBusiness();
+      setProfileSaved(true);
+      setTimeout(() => setProfileSaved(false), 2000);
+    } finally {
+      setSavingProfile(false);
+    }
   }
 
   async function fetchItems() {
@@ -583,6 +622,7 @@ export default function DashboardPage() {
     try {
       const formData = new FormData();
       formData.append("file", mediaFile);
+      formData.append("category", mediaCategory);
       if (mediaDescription.trim()) formData.append("description", mediaDescription.trim());
 
       const res = await fetch("/api/media", { method: "POST", body: formData });
@@ -593,6 +633,7 @@ export default function DashboardPage() {
       }
       setMediaFile(null);
       setMediaDescription("");
+      setMediaCategory("food");
       const fileInput = document.getElementById("media-file-input") as HTMLInputElement | null;
       if (fileInput) fileInput.value = "";
       await fetchMediaAssets();
@@ -606,6 +647,15 @@ export default function DashboardPage() {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: asset.id, used: !asset.used }),
+    });
+    await fetchMediaAssets();
+  }
+
+  async function toggleMediaCategory(asset: MediaAsset) {
+    await fetch("/api/media", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: asset.id, category: asset.category === "food" ? "ambiance" : "food" }),
     });
     await fetchMediaAssets();
   }
@@ -723,6 +773,41 @@ export default function DashboardPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className={CARD}>
+              <p className="text-sm font-medium mb-1">Business-Profil</p>
+              <p className="text-xs text-brand-cream/50 mb-3">
+                Diese Angaben steuern, worüber die KI schreibt. "Ambiente-Highlights" sind
+                bewusst getrennt von den Spezialitäten – damit auch gezielt Content über die
+                Location/Atmosphäre entsteht, nicht nur übers Essen. Ein Eintrag pro Zeile.
+              </p>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <label className="text-xs text-brand-cream/50">
+                  Spezialitäten (Essen)
+                  <textarea
+                    value={specialtiesText}
+                    onChange={(e) => setSpecialtiesText(e.target.value)}
+                    className={`${INPUT_CLASS} mt-1`}
+                    rows={5}
+                  />
+                </label>
+                <label className="text-xs text-brand-cream/50">
+                  Ambiente-Highlights (Location/Atmosphäre)
+                  <textarea
+                    value={ambianceText}
+                    onChange={(e) => setAmbianceText(e.target.value)}
+                    placeholder={
+                      "z.B.\nGemütliches Obergeschoss mit besonderem Ambiente\nWarmes Licht, stilvolle Einrichtung\nRuhige Sitzecken zum Verweilen"
+                    }
+                    className={`${INPUT_CLASS} mt-1`}
+                    rows={5}
+                  />
+                </label>
+              </div>
+              <button onClick={saveBusinessProfile} disabled={savingProfile} className={`${BTN_PRIMARY} mt-3`}>
+                {savingProfile ? "Speichert..." : profileSaved ? "Gespeichert!" : "Profil speichern"}
+              </button>
             </div>
           </div>
         )}
@@ -1253,6 +1338,30 @@ export default function DashboardPage() {
                 className={FILE_INPUT_CLASS}
                 required
               />
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMediaCategory("food")}
+                  className={`flex-1 text-sm px-3 py-2 rounded-xl font-medium ${
+                    mediaCategory === "food"
+                      ? "bg-brand-turquoise text-brand-bg"
+                      : "border border-brand-cream/25 text-brand-cream"
+                  }`}
+                >
+                  🍕 Essen
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMediaCategory("ambiance")}
+                  className={`flex-1 text-sm px-3 py-2 rounded-xl font-medium ${
+                    mediaCategory === "ambiance"
+                      ? "bg-brand-turquoise text-brand-bg"
+                      : "border border-brand-cream/25 text-brand-cream"
+                  }`}
+                >
+                  🏠 Ambiente
+                </button>
+              </div>
               <textarea
                 placeholder="Beschreibung/Motiv (optional, z.B. 'Pizza aus dem Ofen, Dampf sichtbar')"
                 value={mediaDescription}
@@ -1289,6 +1398,12 @@ export default function DashboardPage() {
                         {asset.description}
                       </p>
                     )}
+                    <button
+                      onClick={() => toggleMediaCategory(asset)}
+                      className="text-xs px-2 py-0.5 rounded-full font-medium bg-brand-turquoise/10 text-brand-turquoise"
+                    >
+                      {asset.category === "ambiance" ? "🏠 Ambiente" : "🍕 Essen"}
+                    </button>
                     <div className="flex items-center justify-between">
                       <button
                         onClick={() => toggleMediaUsed(asset)}

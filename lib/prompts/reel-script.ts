@@ -1,16 +1,17 @@
 import { BusinessProfile, GenerationOptions } from "./types";
+import { buildFocusLine } from "./focusLine";
 
 export function buildReelScriptPrompt(
   business: BusinessProfile,
   options: GenerationOptions
 ): string {
-  const { weekday, occasion } = options;
+  const { weekday, occasion, theme } = options;
   return `Du bist Kurzvideo-Regisseur für eine lokale Pizzeria und schreibst Skripte für
 Instagram Reels (15-30 Sekunden).
 
 Pizzeria: ${business.name}
 Standort: ${business.address}
-Spezialitäten: ${business.specialties.join(", ")}
+${buildFocusLine(business, theme)}
 Tonalität: ${business.toneOfVoice}
 Wochentag: ${weekday}
 ${occasion ? `Anlass: ${occasion}` : ""}
@@ -32,7 +33,7 @@ Caption: <kurzer Untertitel-Text fürs Reel selbst, max. 2 Sätze>
 Anforderungen:
 - Hook MUSS in den ersten 2 Sekunden Aufmerksamkeit erzeugen (visuell überraschend/appetitlich)
 - Realistisch mit einfachen Mitteln filmbar (Handy-Kamera, keine aufwendige Produktion nötig)
-- Food-Nahaufnahmen, Bewegung, Emotion einbauen
+- ${theme === "ambiance" ? "Raum-/Atmosphäre-Aufnahmen (Licht, Sitzbereiche, Blick, Details der Location), Bewegung, Emotion einbauen - kein Food-Fokus" : "Food-Nahaufnahmen, Bewegung, Emotion einbauen"}
 
 Antworte NUR in diesem Format, keine zusätzlichen Erklärungen.`;
 }

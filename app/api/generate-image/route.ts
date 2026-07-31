@@ -37,7 +37,13 @@ export async function POST(req: NextRequest) {
     }
 
     const prompt = buildImagePrompt(
-      { name: business.name, address: business.address, specialties: business.specialties, toneOfVoice: business.toneOfVoice },
+      {
+        name: business.name,
+        address: business.address,
+        specialties: business.specialties,
+        ambianceHighlights: business.ambianceHighlights,
+        toneOfVoice: business.toneOfVoice,
+      },
       description
     );
 

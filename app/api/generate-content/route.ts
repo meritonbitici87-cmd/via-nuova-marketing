@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
       offerDetails,
       season,
       holiday,
+      theme,
       type = "instagram",
     } = body;
 
@@ -35,6 +36,7 @@ export async function POST(req: NextRequest) {
       offerDetails,
       season,
       holiday,
+      ...(theme === "ambiance" ? { theme } : {}),
     };
     const missingFields = validateOptions(type, options);
     if (missingFields.length > 0) {

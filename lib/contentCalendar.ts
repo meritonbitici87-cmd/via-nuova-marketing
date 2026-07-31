@@ -23,6 +23,7 @@ export interface CalendarPlanItem {
 interface BusinessForTopics {
   name: string;
   specialties: string[];
+  ambianceHighlights: string[];
 }
 
 const BLOG_TOPIC_IDEAS = (business: BusinessForTopics) => [
@@ -54,12 +55,24 @@ function weekOfYear(date: Date): number {
  * - 1x Blogartikel wöchentlich (Mi)
  * - 1x Newsletter monatlich (1. des Monats)
  */
+// Ungefähr jeder dritte visuelle Post bekommt statt eines Essen-Fokus das Ambiente-Thema
+// (Location/Atmosphäre), damit gezielt Bekanntheit für den Ort selbst aufgebaut wird -
+// nur wenn im Business-Profil überhaupt Ambiente-Highlights hinterlegt sind.
+const AMBIANCE_EVERY = 3;
+
 export function buildCalendarPlan(
   startDate: Date,
   days: number,
   business: BusinessForTopics
 ): CalendarPlanItem[] {
   const plan: CalendarPlanItem[] = [];
+  const hasAmbiance = business.ambianceHighlights.length > 0;
+  let visualCount = 0;
+
+  function nextTheme(): GenerationOptions["theme"] {
+    visualCount++;
+    return hasAmbiance && visualCount % AMBIANCE_EVERY === 0 ? "ambiance" : undefined;
+  }
 
   for (let i = 0; i < days; i++) {
     const date = new Date(startDate);
@@ -67,19 +80,19 @@ export function buildCalendarPlan(
     const weekday = WEEKDAYS_DE[date.getDay()];
 
     for (let n = 1; n <= 3; n++) {
-      plan.push({ type: "instagram", date, options: { weekday } });
+      plan.push({ type: "instagram", date, options: { weekday, theme: nextTheme() } });
     }
     for (let n = 1; n <= 5; n++) {
-      plan.push({ type: "story", date, options: { weekday } });
+      plan.push({ type: "story", date, options: { weekday, theme: nextTheme() } });
     }
-    plan.push({ type: "reel_script", date, options: { weekday } });
-    plan.push({ type: "tiktok_script", date, options: { weekday } });
+    plan.push({ type: "reel_script", date, options: { weekday, theme: nextTheme() } });
+    plan.push({ type: "tiktok_script", date, options: { weekday, theme: nextTheme() } });
 
     if (date.getDay() === 1 || date.getDay() === 4) {
       plan.push({
         type: "google_business",
         date,
-        options: { weekday, occasion: "Wochenaktion" },
+        options: { weekday, occasion: "Wochenaktion", theme: nextTheme() },
       });
     }
 

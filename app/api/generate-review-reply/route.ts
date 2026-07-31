@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
         name: business.name,
         address: business.address,
         specialties: business.specialties,
+        ambianceHighlights: business.ambianceHighlights,
         toneOfVoice: business.toneOfVoice,
       },
       {

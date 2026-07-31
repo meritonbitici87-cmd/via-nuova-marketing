@@ -2,6 +2,7 @@ export interface BusinessProfile {
   name: string;
   address: string;
   specialties: string[];
+  ambianceHighlights: string[];
   toneOfVoice: string;
 }
 
@@ -17,4 +18,8 @@ export interface GenerationOptions {
   holiday?: string;
   customerName?: string;
   customerContext?: string;
+  // "ambiance" lenkt den Post weg vom Essen hin zur Location/Atmosphäre selbst
+  // (z.B. das Obergeschoss) - genutzt, um gezielt Bekanntheit für den Ort aufzubauen,
+  // nicht nur für die Gerichte.
+  theme?: "ambiance";
 }

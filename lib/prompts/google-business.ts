@@ -1,15 +1,16 @@
 import { BusinessProfile, GenerationOptions } from "./types";
+import { buildFocusLine } from "./focusLine";
 
 export function buildGoogleBusinessPrompt(
   business: BusinessProfile,
   options: GenerationOptions
 ): string {
-  const { weekday, occasion } = options;
+  const { weekday, occasion, theme } = options;
   return `Du bist Texter für Google Business Profile Beiträge ("Google Posts") einer lokalen Pizzeria.
 
 Pizzeria: ${business.name}
 Standort: ${business.address}
-Spezialitäten: ${business.specialties.join(", ")}
+${buildFocusLine(business, theme)}
 Tonalität: ${business.toneOfVoice}
 Wochentag: ${weekday}
 ${occasion ? `Anlass: ${occasion}` : ""}

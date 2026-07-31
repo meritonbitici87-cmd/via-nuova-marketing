@@ -56,10 +56,14 @@ export async function GET(req: NextRequest) {
 
         let visual: "real" | "generated" | null = null;
         if (IMAGE_TYPES.includes(item.type)) {
-          // Echtes Material geht immer vor KI-generiertem Bild - dafür wird zuerst
-          // nach einem noch unbenutzten hochgeladenen Foto/Video gesucht.
+          const isAmbiance = item.options.theme === "ambiance";
+          const wantedCategory = isAmbiance ? "ambiance" : "food";
+
+          // Echtes Material geht immer vor KI-generiertem Bild - dafür wird zuerst nach
+          // einem noch unbenutzten Foto/Video in der passenden Kategorie gesucht
+          // (Essen- vs. Ambiente-Post), damit kein Essensfoto in einem Ambiente-Post landet.
           const realMedia = await prisma.mediaAsset.findFirst({
-            where: { used: false },
+            where: { used: false, category: wantedCategory },
             orderBy: { createdAt: "asc" },
           });
 
@@ -69,16 +73,19 @@ export async function GET(req: NextRequest) {
               data: { used: true, contentItemId: contentItem.id },
             });
             visual = "real";
-          } else if (business.specialties.length > 0) {
-            try {
-              const motif = business.specialties[specialtyIndex % business.specialties.length];
-              specialtyIndex++;
-              await generateAndAttachImage(contentItem.id, business.id, motif);
-              visual = "generated";
-            } catch (imgErr) {
-              // Bild ist "nice to have" - ein Fehler hier (z.B. fehlender OPENAI_API_KEY)
-              // soll den Text-Content nicht verwerfen.
-              console.error(`Bild für ContentItem ${contentItem.id} konnte nicht generiert werden:`, imgErr);
+          } else {
+            const motifPool = isAmbiance ? business.ambianceHighlights : business.specialties;
+            if (motifPool.length > 0) {
+              try {
+                const motif = motifPool[specialtyIndex % motifPool.length];
+                specialtyIndex++;
+                await generateAndAttachImage(contentItem.id, business.id, motif, isAmbiance);
+                visual = "generated";
+              } catch (imgErr) {
+                // Bild ist "nice to have" - ein Fehler hier (z.B. fehlender OPENAI_API_KEY)
+                // soll den Text-Content nicht verwerfen.
+                console.error(`Bild für ContentItem ${contentItem.id} konnte nicht generiert werden:`, imgErr);
+              }
             }
           }
         }

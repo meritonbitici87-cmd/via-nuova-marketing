@@ -1,15 +1,16 @@
 import { BusinessProfile, GenerationOptions } from "./types";
+import { buildFocusLine } from "./focusLine";
 
 export function buildFacebookPrompt(
   business: BusinessProfile,
   options: GenerationOptions
 ): string {
-  const { weekday, occasion } = options;
+  const { weekday, occasion, theme } = options;
   return `Du bist Social-Media-Texter für eine lokale Pizzeria.
 
 Pizzeria: ${business.name}
 Standort: ${business.address}
-Spezialitäten: ${business.specialties.join(", ")}
+${buildFocusLine(business, theme)}
 Tonalität: ${business.toneOfVoice}
 Wochentag: ${weekday}
 ${occasion ? `Anlass: ${occasion}` : ""}

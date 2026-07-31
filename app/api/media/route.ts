@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { uploadMediaFile, deleteMediaFile } from "@/lib/supabaseStorage";
+import { cropToSquare } from "@/lib/imageProcessing";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get("file");
     const description = formData.get("description");
+    const category = formData.get("category");
 
     if (!file || !(file instanceof File)) {
       return NextResponse.json({ error: "Keine Datei erhalten." }, { status: 400 });
@@ -44,11 +46,20 @@ export async function POST(req: NextRequest) {
     }
 
     const arrayBuffer = await file.arrayBuffer();
-    const { storagePath, url } = await uploadMediaFile(
-      Buffer.from(arrayBuffer),
-      file.name,
-      file.type
-    );
+    let uploadBuffer: Buffer<ArrayBufferLike> = Buffer.from(arrayBuffer);
+    let uploadName = file.name;
+    let uploadType = file.type;
+
+    // Fotos werden automatisch mittig aufs Instagram/Facebook-taugliche Quadratformat
+    // zugeschnitten. Videos lassen wir unverändert (Video-Zuschnitt ist ungleich
+    // aufwändiger und die Plattformen kommen mit den Original-Seitenverhältnissen klar).
+    if (isImage) {
+      uploadBuffer = await cropToSquare(uploadBuffer);
+      uploadName = uploadName.replace(/\.[^.]+$/, "") + ".jpg";
+      uploadType = "image/jpeg";
+    }
+
+    const { storagePath, url } = await uploadMediaFile(uploadBuffer, uploadName, uploadType);
 
     const mediaAsset = await prisma.mediaAsset.create({
       data: {
@@ -56,6 +67,7 @@ export async function POST(req: NextRequest) {
         storagePath,
         url,
         description: typeof description === "string" && description ? description : null,
+        category: category === "ambiance" ? "ambiance" : "food",
       },
     });
 
@@ -75,7 +87,7 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
-    const { id, used, description, contentItemId } = body;
+    const { id, used, description, contentItemId, category } = body;
     if (!id) {
       return NextResponse.json({ error: "id ist erforderlich." }, { status: 400 });
     }
@@ -86,6 +98,7 @@ export async function PATCH(req: NextRequest) {
         ...(typeof used === "boolean" ? { used } : {}),
         ...(description !== undefined ? { description } : {}),
         ...(contentItemId !== undefined ? { contentItemId } : {}),
+        ...(category === "food" || category === "ambiance" ? { category } : {}),
       },
     });
 

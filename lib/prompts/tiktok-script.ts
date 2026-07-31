@@ -1,17 +1,18 @@
 import { BusinessProfile, GenerationOptions } from "./types";
+import { buildFocusLine } from "./focusLine";
 
 export function buildTiktokScriptPrompt(
   business: BusinessProfile,
   options: GenerationOptions
 ): string {
-  const { weekday, occasion } = options;
+  const { weekday, occasion, theme } = options;
   return `Du bist Kurzvideo-Stratege für eine lokale Pizzeria und schreibst Skripte für TikTok
 (15-45 Sekunden). TikTok tickt anders als Instagram: roher, unterhaltsamer, trendbezogener,
 weniger poliert.
 
 Pizzeria: ${business.name}
 Standort: ${business.address}
-Spezialitäten: ${business.specialties.join(", ")}
+${buildFocusLine(business, theme)}
 Tonalität: ${business.toneOfVoice}
 Wochentag: ${weekday}
 ${occasion ? `Anlass: ${occasion}` : ""}
