@@ -64,3 +64,26 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+// PATCH: Verknüpft (oder löst) ein bestehendes generiertes Bild mit einem ContentItem,
+// z.B. wenn man im Dashboard nachträglich ein KI-Bild an einen Text-Post hängt.
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { id, contentItemId } = body;
+    if (!id) {
+      return NextResponse.json({ error: "id ist erforderlich." }, { status: 400 });
+    }
+
+    const image = await prisma.generatedImage.update({
+      where: { id },
+      data: { contentItemId: contentItemId ?? null },
+    });
+
+    return NextResponse.json({ image });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unbekannter Fehler";
+    console.error("Fehler beim Verknüpfen des Bildes:", error);
+    return NextResponse.json({ error: `Interner Fehler: ${message}` }, { status: 500 });
+  }
+}

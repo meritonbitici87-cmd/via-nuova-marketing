@@ -8,6 +8,7 @@ const prisma = new PrismaClient();
 export async function GET() {
   const items = await prisma.contentItem.findMany({
     orderBy: { createdAt: "desc" },
+    include: { mediaAssets: true, images: true },
   });
   return NextResponse.json({ items });
 }

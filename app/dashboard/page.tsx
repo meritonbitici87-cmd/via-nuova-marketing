@@ -18,6 +18,8 @@ interface ContentItem {
   scheduledDate: string | null;
   customerId: string | null;
   createdAt: string;
+  mediaAssets: MediaAsset[];
+  images: GeneratedImage[];
 }
 
 interface Customer {
@@ -35,6 +37,7 @@ interface GeneratedImage {
   id: string;
   prompt: string;
   imagePath: string;
+  contentItemId: string | null;
   createdAt: string;
 }
 
@@ -272,6 +275,8 @@ export default function DashboardPage() {
   const [postingItemId, setPostingItemId] = useState<string | null>(null);
   const [postErrors, setPostErrors] = useState<Record<string, string>>({});
 
+  const [mediaPickerFor, setMediaPickerFor] = useState<string | null>(null);
+
   const [connections, setConnections] = useState<SocialConnection[]>([]);
   const [connectBanner, setConnectBanner] = useState<{ type: "success" | "error"; text: string } | null>(
     null
@@ -425,6 +430,44 @@ export default function DashboardPage() {
     } finally {
       setPostingItemId(null);
     }
+  }
+
+  async function attachMediaAssetToItem(contentItemId: string, mediaAssetId: string) {
+    await fetch("/api/media", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: mediaAssetId, contentItemId, used: true }),
+    });
+    setMediaPickerFor(null);
+    await Promise.all([fetchItems(), fetchMediaAssets()]);
+  }
+
+  async function detachMediaAssetFromItem(mediaAssetId: string) {
+    await fetch("/api/media", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: mediaAssetId, contentItemId: null, used: false }),
+    });
+    await Promise.all([fetchItems(), fetchMediaAssets()]);
+  }
+
+  async function attachGeneratedImageToItem(contentItemId: string, imageId: string) {
+    await fetch("/api/generate-image", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: imageId, contentItemId }),
+    });
+    setMediaPickerFor(null);
+    await Promise.all([fetchItems(), fetchImages()]);
+  }
+
+  async function detachGeneratedImageFromItem(imageId: string) {
+    await fetch("/api/generate-image", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: imageId, contentItemId: null }),
+    });
+    await Promise.all([fetchItems(), fetchImages()]);
   }
 
   async function updateReviewStatus(id: string, replyStatus: Review["replyStatus"]) {
@@ -740,27 +783,128 @@ export default function DashboardPage() {
                     </span>
                   </div>
                   <p className="whitespace-pre-wrap text-sm mb-3">{item.contentText}</p>
+
+                  {(item.mediaAssets.length > 0 || item.images.length > 0) && (
+                    <div className="mb-3">
+                      {item.mediaAssets[0] &&
+                        (item.mediaAssets[0].type === "video" ? (
+                          <video
+                            src={item.mediaAssets[0].url}
+                            controls
+                            className="w-full max-w-xs aspect-square object-cover rounded-xl"
+                          />
+                        ) : (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={item.mediaAssets[0].url}
+                            alt="Verknüpftes Foto"
+                            className="w-full max-w-xs aspect-square object-cover rounded-xl"
+                          />
+                        ))}
+                      {!item.mediaAssets[0] && item.images[0] && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.images[0].imagePath}
+                          alt="Verknüpftes KI-Bild"
+                          className="w-full max-w-xs aspect-square object-cover rounded-xl"
+                        />
+                      )}
+                      <button
+                        onClick={() =>
+                          item.mediaAssets[0]
+                            ? detachMediaAssetFromItem(item.mediaAssets[0].id)
+                            : item.images[0] && detachGeneratedImageFromItem(item.images[0].id)
+                        }
+                        className="text-xs text-red-400 hover:underline mt-1"
+                      >
+                        Material entfernen
+                      </button>
+                    </div>
+                  )}
+
                   {postErrors[item.id] && (
                     <p className="text-xs text-red-400 mb-2">Fehler: {postErrors[item.id]}</p>
                   )}
-                  {item.status === "draft" && (
-                    <button onClick={() => updateContentStatus(item.id, "approved")} className={BTN_PRIMARY}>
-                      Freigeben
-                    </button>
-                  )}
-                  {item.status === "approved" && POSTABLE_TYPES.includes(item.type) && (
-                    <button
-                      onClick={() => postContentItem(item.id)}
-                      disabled={postingItemId === item.id}
-                      className={BTN_POST}
-                    >
-                      {postingItemId === item.id ? "Wird gepostet..." : "Jetzt posten"}
-                    </button>
-                  )}
-                  {item.status === "approved" && !POSTABLE_TYPES.includes(item.type) && (
-                    <button onClick={() => updateContentStatus(item.id, "posted")} className={BTN_SECONDARY}>
-                      Als gepostet markieren
-                    </button>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    {item.status === "draft" && (
+                      <button onClick={() => updateContentStatus(item.id, "approved")} className={BTN_PRIMARY}>
+                        Freigeben
+                      </button>
+                    )}
+                    {item.status === "approved" && POSTABLE_TYPES.includes(item.type) && (
+                      <button
+                        onClick={() => postContentItem(item.id)}
+                        disabled={postingItemId === item.id}
+                        className={BTN_POST}
+                      >
+                        {postingItemId === item.id ? "Wird gepostet..." : "Jetzt posten"}
+                      </button>
+                    )}
+                    {item.status === "approved" && !POSTABLE_TYPES.includes(item.type) && (
+                      <button onClick={() => updateContentStatus(item.id, "posted")} className={BTN_SECONDARY}>
+                        Als gepostet markieren
+                      </button>
+                    )}
+                    {item.mediaAssets.length === 0 && item.images.length === 0 && (
+                      <button
+                        onClick={() => setMediaPickerFor(mediaPickerFor === item.id ? null : item.id)}
+                        className={BTN_SECONDARY}
+                      >
+                        🖼️ Material hinzufügen
+                      </button>
+                    )}
+                  </div>
+
+                  {mediaPickerFor === item.id && (
+                    <div className="mt-3 bg-black/25 rounded-xl p-3">
+                      <p className="text-xs text-brand-cream/50 mb-2">
+                        Wähl ein noch nicht verwendetes Foto, Video oder KI-Bild:
+                      </p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {mediaAssets
+                          .filter((a) => !a.used)
+                          .map((asset) => (
+                            <button
+                              key={`media-${asset.id}`}
+                              onClick={() => attachMediaAssetToItem(item.id, asset.id)}
+                              className="rounded-lg overflow-hidden ring-1 ring-brand-turquoise/20 hover:ring-brand-turquoise"
+                            >
+                              {asset.type === "video" ? (
+                                <video src={asset.url} className="w-full aspect-square object-cover" />
+                              ) : (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={asset.url}
+                                  alt={asset.description ?? "Foto"}
+                                  className="w-full aspect-square object-cover"
+                                />
+                              )}
+                            </button>
+                          ))}
+                        {images
+                          .filter((img) => !img.contentItemId)
+                          .map((img) => (
+                            <button
+                              key={`image-${img.id}`}
+                              onClick={() => attachGeneratedImageToItem(item.id, img.id)}
+                              className="rounded-lg overflow-hidden ring-1 ring-brand-turquoise/20 hover:ring-brand-turquoise"
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={img.imagePath}
+                                alt={img.prompt}
+                                className="w-full aspect-square object-cover"
+                              />
+                            </button>
+                          ))}
+                      </div>
+                      {mediaAssets.filter((a) => !a.used).length === 0 &&
+                        images.filter((img) => !img.contentItemId).length === 0 && (
+                          <p className="text-xs text-brand-cream/40">
+                            Kein freies Material verfügbar – lade zuerst etwas in "Medien" oder "Bilder" hoch.
+                          </p>
+                        )}
+                    </div>
                   )}
                 </div>
               ))}
